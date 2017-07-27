@@ -86,17 +86,19 @@ def retrieve_neighbors(index_center, df, spatial_threshold, temporal_threshold):
     return neigborhood
 
 def parse_dates(x):
-    return datetime.strptime(x, '%Y-%m-%d %H:%M:%S.%f')
+    return datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
 
-def main(day, hour):
+def main():
 
     filename = 'data/ms.csv'
-
-    df = pd.read_csv(filename,sep=";",converters={'DATATIME': parse_dates})
-    print ( df[(df['DATATIME'].dt.hour == 2) & (df['DATATIME'].dt.day == 1) & (df['DATATIME'].dt.minute == 3)] )
+    names = ['id','DATATIME', 'LATITUDE', 'LONGITUDE']
+    df = pd.read_csv(filename, sep=",",  skiprows=[0], names = names, converters={'DATATIME': parse_dates})
+#    print (df)
+    print ( df[(df['DATATIME'].dt.hour == 13) & (df['DATATIME'].dt.day == 2) & (df['DATATIME'].dt.minute == 34)] )
+    msss = df[(df['DATATIME'].dt.hour == 13) & (df['DATATIME'].dt.day == 2) & (df['DATATIME'].dt.minute == 34)]
 #    print df[df['DATATIME'].dt.day == 1]
     
-    num_ids = len(df)
+    num_ids = len(msss)
     print ( "Len:{}\n---".format(num_ids) ) 
 
     numFrag = 4
@@ -104,19 +106,21 @@ def main(day, hour):
     # STBSCAN
     spatial_threshold   = 500
     temporal_threshold  = 60
-    minPts              = 5
+    minPts              = 20
 
-    result_df = st_dbscan(  df, spatial_threshold,
+    result_df = st_dbscan(  msss, spatial_threshold,
                             temporal_threshold, minPts)
     print ("Finished")
 
-    import time
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    result_df['cluster'].to_csv("result_{}_{}_{}_{}.csv".format(spatial_threshold,
-                                                                temporal_threshold,
-                                                                minPts,
-                                                                timestr)
-                                                                )
+#    import time
+#    timestr = time.strftime("%Y%m%d-%H%M%S")
+    
+    print(result_df)
+#    result_df['cluster'].to_csv("result_{}_{}_{}_{}.csv".format(spatial_threshold,
+#                                                                temporal_threshold,
+#                                                                minPts,
+#                                                                timestr)
+#                                                                )
 
 
 if __name__ == "__main__":
